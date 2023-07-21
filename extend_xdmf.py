@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # A tool to fix ParaView data cropping issue for 3D XDMF files
 #
