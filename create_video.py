@@ -47,6 +47,7 @@ if args.background_color is not None:
     ffmpeg_cmdline.extend(["-shortest", "-filter_complex", "[0:v][1:v]overlay=shortest=1,format=yuv420p[out]", "-map", "[out]"])
 
 ffmpeg_cmdline.extend(["-pix_fmt", "yuv420p", "-crf", "17",
+                "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",  # Crop one pixel in case it is not divisible by 2
                 "-threads", f"{threads}",
                 "-preset", "fast",
                 "-an",
