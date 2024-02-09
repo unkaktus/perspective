@@ -24,11 +24,17 @@ class VTK3D:
         self.load_file(filename)
 
     def set_data_from_header(self, header):
-        # variable ham, level 5, time  1.012500000e+01
-        var_str, level_str, time_str = header.split(", ", 2)
-        var_name = var_str.split(" ", 2)[1]
-        self.var_name = var_name
-        self.time = float(time_str.split(" ", 1)[1])
+        if header.startswith("variable"):
+            # variable ham, level 5, time  1.012500000e+01
+            var_str, level_str, time_str = header.split(", ", 2)
+            var_name = var_str.split(" ", 2)[1]
+            self.var_name = var_name
+            self.time = float(time_str.split(" ", 1)[1])
+            self.extension = 'vti'
+        if header.startswith("Apparent Horizon"):
+            # Apparent Horizon 0, time=7982.500000
+            self.time = float(header.split("time=", 1)[1])
+            self.extension = 'vtu'
 
     def load_file(self, filename):
         with open(filename, 'rb') as file:
@@ -52,8 +58,8 @@ def write_timeseries_pvd(input_dir, output_filename):
         for filename in sorted(glob.glob(os.path.join(input_dir, '*.vtk'))):
             v = VTK3D(filename)
             name = os.path.splitext(os.path.basename(filename))[0]
-            vti_filename = f'{name}/{name}_0.vti'
-            f.write(f'            <DataSet timestep="{v.time}" file="{vti_filename}"/>\n')
+            vt_filename = f'{name}/{name}_0.{v.extension}'
+            f.write(f'            <DataSet timestep="{v.time}" file="{vt_filename}"/>\n')
 
         f.write("""</Collection>
             </VTKFile>
@@ -65,7 +71,7 @@ def convert_pvd_to_xdmf(filename, output_filename):
     writer.WriteAllTimeSteps = 1
     writer.UpdatePipeline()
 
-def convert_vtk_to_pvd(input_dir, output_dir, scratch_dir):
+def convert_vtk_to_xdmf(input_dir, output_dir, scratch_dir):
     filelist = sorted(glob.glob(os.path.join(input_dir, '*.vtk')))
     for filename in filelist:
         print(f'Converting {filename} to PVD')
@@ -92,4 +98,4 @@ if __name__ == "__main__":
     mkdir_p(args.output_dir)
     mkdir_p(args.scratch_dir)
 
-    convert_vtk_to_pvd(args.input_dir, args.output_dir, args.scratch_dir)
+    convert_vtk_to_xdmf(args.input_dir, args.output_dir, args.scratch_dir)
