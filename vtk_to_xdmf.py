@@ -107,7 +107,8 @@ def convert_vtk_to_xdmf(input_dir, output_dir, scratch_dir):
     shutil.rmtree(scratch_dir)
     print(f"Correcting the variable name in the XDMF file")
     first_vtk = VTK3D(filelist[0])
-    correct_variable_name(output_filename, first_vtk.scalar_name, first_vtk.var_name)
+    if hasattr(first_vtk, 'var_name'):
+        correct_variable_name(output_filename, first_vtk.scalar_name, first_vtk.var_name)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('vtk_to_xdmf')
