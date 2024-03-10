@@ -20,12 +20,22 @@ import numpy as np
 from PIL import Image
 
 
+def default_output(frames_dir):
+    if frames_dir == "":
+        frames_dir = os.getcwd()
+    basename = os.path.basename(frames_dir.removesuffix('/'))
+    return f'{basename}.mp4'
+
 parser = argparse.ArgumentParser('film')
 parser.add_argument("--frames-dir", type=str, help="Input directory with PNG frames", default="")
-parser.add_argument("--output", type=str, help="Output file", default="output.mp4")
+parser.add_argument("--output", type=str, help="Output file", default=None)
 parser.add_argument("--frame-rate", type=int, help="Frame rate", default=10)
 parser.add_argument("--background-color", type=str, help="Background color", default=None)
 args = parser.parse_args()
+
+output_filename = default_output(args.frames_dir)
+if not args.output is None:
+    output_filename = args.output
 
 # Use only physical cores but not more than 16
 threads = int(np.min([psutil.cpu_count(logical=False), 16]))
@@ -52,7 +62,7 @@ ffmpeg_cmdline.extend(["-pix_fmt", "yuv420p", "-crf", "17",
                 "-preset", "fast",
                 "-an",
                 "-y",
-                args.output])
+                output_filename])
 
 print(' '.join(ffmpeg_cmdline))
 subprocess.run(ffmpeg_cmdline, stdout=sys.stdout, stderr=sys.stderr)
