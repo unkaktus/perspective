@@ -23,6 +23,7 @@ def floatlist_to_string(fl):
 parser = argparse.ArgumentParser('reflect_bitant')
 parser.add_argument("-i", type=str, help="Input filename without extension")
 parser.add_argument("--ghost-points", type=int, default=6, help="Number of ghost points")
+parser.add_argument("--no-compression", type=bool, default=False, help="Disable compression")
 args = parser.parse_args()
 
 
@@ -101,7 +102,11 @@ if __name__ == "__main__":
         data_reflected = np.flip(data, axis=0)
         data = np.concatenate((data_reflected, data), axis=0)
 
-        output_file[key] = data
+        if not args.no_compression:
+            dset = output_file.create_dataset(key, data.shape, compression="gzip", compression_opts=1)
+        else:
+            dset = output_file.create_dataset(key, data.shape)
+        dset[::] = data
 
     input_file.close()
     output_file.close()
