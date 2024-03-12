@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pvpython
 
 # A tool to convert VTK timeseries into a single XDMF file
 # with correct time from the individual VTK file headers.
@@ -120,4 +120,4 @@ if __name__ == "__main__":
     mkdir_p(args.output_dir)
     mkdir_p(args.scratch_dir)
 
-    convert_vtk_to_xdmf(args.input_dir, args.output_dir, args.scratch_dir)
+    convert_vtk_to_xdmf(args.input_dir.removesuffix('/'), args.output_dir, args.scratch_dir)
